@@ -88,10 +88,3 @@ class Parser:
             '*': left * right,
             '/': left / right
         }[ast.value]
-
-if __name__ == '__main__':
-    scanner = Scanner('1 - 2 * 3 + 6')
-    scanner.lex()
-
-    parser = Parser(scanner.tokens)
-    print(parser.exec(parser.parse()))
