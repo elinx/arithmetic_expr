@@ -9,6 +9,7 @@ class Parser:
     factor ::= NUM
             | PLUS NUM
             | MINUS NUM
+            | '(' expr ')'
     """
     class AST:
         def __init__(self, value, left, right):
@@ -44,11 +45,20 @@ class Parser:
         token = self.peek()
         if token.tag == INT:
             return self.AST(self.consume().val, None, None)
-        if token.tag == RESERVED and \
-                (token.val == '+' or token.val == '-'):
-            op = self.consume()
-            opd = self.consume()
-            return self.AST(op.val + opd.val, None, None)
+        if token.tag == RESERVED:
+            if token.val == '+' or token.val == '-':
+                op = self.consume()
+                opd = self.consume()
+                return self.AST(op.val + opd.val, None, None)
+            elif token.val == '(':
+                self.consume()
+                expr = self.expr()
+                rp = self.peek()
+                if rp.val == ')':
+                    self.consume()
+                    return expr
+                else:
+                    raise ValueError('need a `)`')
         return None
 
     def term(self):

@@ -11,7 +11,6 @@ class ArithmeticTest(unittest.TestCase):
 
         parser = Parser(scanner.tokens)
         parser.parse()
-        print(parser.ast)
         res = parser.exec(parser.ast)
         self.assertEqual(res, expect)
 
@@ -32,3 +31,6 @@ class ArithmeticTest(unittest.TestCase):
 
     def test_unary(self):
         self.common('2 + -3', -1)
+
+    def test_parenthsis(self):
+        self.common('(2 + 3) * 6', 30)

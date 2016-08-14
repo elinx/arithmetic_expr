@@ -29,3 +29,8 @@ class ScannerTest(unittest.TestCase):
     def test_unary(self):
         self.common('2 + -3', [Token('2', INT), Token('+', RESERVED), Token('-', RESERVED),
                                Token('3', INT)])
+
+    def test_parenthsis(self):
+        self.common('(2 + 3) * 6', [Token('(', RESERVED), Token('2', INT), Token('+', RESERVED), Token('3', INT),
+                                    Token(')', RESERVED), Token('*', RESERVED), Token('6', INT)])
+

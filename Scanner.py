@@ -7,6 +7,8 @@ ID = 'ID'
 
 tokens_exprs = [
     (r'[ \n\t]+',               None),
+    (r'\(',                    'RESERVED'),
+    (r'\)',                    'RESERVED'),
     (r'\+',                    'RESERVED'),
     (r'-',                     'RESERVED'),
     (r'\*',                    'RESERVED'),
