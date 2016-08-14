@@ -10,7 +10,9 @@ class ArithmeticTest(unittest.TestCase):
         scanner.lex()
 
         parser = Parser(scanner.tokens)
-        res = parser.exec(parser.parse())
+        parser.parse()
+        print(parser.ast)
+        res = parser.exec(parser.ast)
         self.assertEqual(res, expect)
 
     def test_add(self):
@@ -27,3 +29,6 @@ class ArithmeticTest(unittest.TestCase):
 
     def test_compound(self):
         self.common('2 + 3 * 6', 20)
+
+    def test_unary(self):
+        self.common('2 + -3', -1)
