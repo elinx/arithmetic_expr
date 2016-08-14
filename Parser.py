@@ -1,4 +1,5 @@
 from Scanner import *
+from AST import *
 
 
 class Parser:
@@ -11,19 +12,6 @@ class Parser:
             | MINUS NUM
             | '(' expr ')'
     """
-    class AST:
-        def __init__(self, value, left, right):
-            self.value = value
-            self.left = left
-            self.right = right
-
-        def __repr__(self, level=0):
-            ret = '\t' * level + str(self.value) + '\n'
-            if self.left is not None:
-                ret += self.left.__repr__(level + 1)
-            if self.right is not None:
-                ret += self.right.__repr__(level + 1)
-            return ret
 
     def __init__(self, tokens):
         self.tokens = tokens
@@ -44,12 +32,12 @@ class Parser:
         """factor ::= [0-9]*"""
         token = self.peek()
         if token.tag == INT:
-            return self.AST(self.consume().val, None, None)
+            return IntegerAST(int(self.consume().val))
         if token.tag == RESERVED:
             if token.val == '+' or token.val == '-':
                 op = self.consume()
                 opd = self.consume()
-                return self.AST(op.val + opd.val, None, None)
+                return IntegerAST(int(op.val + opd.val))
             elif token.val == '(':
                 self.consume()
                 expr = self.expr()
@@ -70,7 +58,7 @@ class Parser:
                 (token.val == '*' or token.val == '/'):
             op = self.consume()
             right = self.factor()
-            new_ast = self.AST(op.val, term_ast, right)
+            new_ast = BinaryOPAST(op.val, term_ast, right)
             term_ast = new_ast
             token = self.peek()
 
@@ -85,7 +73,7 @@ class Parser:
                 (token.val == '+' or token.val == '-'):
             op = self.consume()
             right = self.term()
-            new_ast = self.AST(op.val, expr_ast, right)
+            new_ast = BinaryOPAST(op.val, expr_ast, right)
             expr_ast = new_ast
             token = self.peek()
 
@@ -96,12 +84,10 @@ class Parser:
         return self.ast
 
     def exec(self, ast):
-        if ast is not None and str(ast.value) not in '+-*/':
+        if isinstance(ast, IntegerAST):
             return ast.value
         left = self.exec(ast.left)
-        left = 0 if left is None else int(left)
         right = self.exec(ast.right)
-        right = 0 if right is None else int(right)
 
         return {
             '+': left + right,
