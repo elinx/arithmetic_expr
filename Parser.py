@@ -80,18 +80,5 @@ class Parser:
         return expr_ast
 
     def parse(self):
-        self.ast = self.expr()
-        return self.ast
+        return self.expr()
 
-    def exec(self, ast):
-        if isinstance(ast, IntegerAST):
-            return ast.value
-        left = self.exec(ast.left)
-        right = self.exec(ast.right)
-
-        return {
-            '+': left + right,
-            '-': left - right,
-            '*': left * right,
-            '/': left / right
-        }[ast.value]

@@ -1,6 +1,7 @@
 import unittest
 from Parser import *
 from Scanner import *
+from ASTVisitor import *
 
 
 class ArithmeticTest(unittest.TestCase):
@@ -10,8 +11,14 @@ class ArithmeticTest(unittest.TestCase):
         scanner.lex()
 
         parser = Parser(scanner.tokens)
-        parser.parse()
-        res = parser.exec(parser.ast)
+        ast = parser.parse()
+
+        eval_visitor = ASTEvalVisitor()
+        res = eval_visitor.eval(ast)
+
+        disp_visitor = ASTDisplayVisitor()
+        disp_visitor.display(ast)
+
         self.assertEqual(res, expect)
 
     def test_add(self):

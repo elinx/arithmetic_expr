@@ -1,5 +1,7 @@
 class AST(object):
-    pass
+
+    def accept(self, visitor):
+        pass
 
 
 class BinaryOPAST(AST):
@@ -21,5 +23,6 @@ class IntegerAST(AST):
     def __init__(self, value):
         self.value = value
 
-    def __repr__(self):
-        return self.value
+    def __repr__(self, level):
+        return '\t' * level + str(self.value) + '\n'
+
