@@ -104,3 +104,13 @@ class ScannerTest(unittest.TestCase):
 
     def test_assign_2(self):
         self.common('a = b', [Token('a', ID), Token('=', RESERVED), Token('b', ID)])
+
+    def test_compound_2(self):
+        self.common('begin end', [Token('begin', RESERVED), Token('end', RESERVED)])
+
+    def test_compound_3(self):
+        self.common('begin a = 1; end', [
+            Token('begin', RESERVED), Token('a', ID),
+            Token('=', RESERVED), Token('1', INT),
+            Token(';', RESERVED), Token('end', RESERVED)
+        ])

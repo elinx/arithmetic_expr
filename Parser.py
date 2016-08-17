@@ -5,7 +5,7 @@ from AST import *
 class Parser:
     """Grammar:
 
-    expr          ::= term ((PLUS | MINUS) term)*
+    expr          ::= (NOT)* term ((PLUS | MINUS | CMP_OP | AND | OR) term)*
 
     term          ::= factor ((MUL | DIV) factor)*
 
@@ -16,7 +16,7 @@ class Parser:
 
     compound_stmt ::= BEGIN stmt_list END
 
-    stmt_list     ::= stmt
+    stmt_list     ::= stmt SEMICOLON
                   |   stmt SEMICOLON stmt_list
 
     stmt          ::= compound_stmt
@@ -99,6 +99,55 @@ class Parser:
 
         return expr_ast
 
+    def assign_stmt(self):
+        stmt = None
+        id_token = self.consume()
+        eq_token = self.peek()
+
+        if eq_token is not None and eq_token.tag == RESERVED and \
+                eq_token.val == '=':
+            self.consume()
+            val_ast = self.expr()
+            stmt = AssignAST(id_token.val, val_ast)
+
+        return stmt
+
+    def stmt_list(self):
+        stmt = None
+        token = self.peek()
+
+        if token is not None and token.tag == ID:
+            stmt = self.assign_stmt()
+
+        semi_token = self.peek()
+        if semi_token is not None and semi_token.tag == RESERVED and \
+                semi_token.val == ';':
+            self.consume()
+        else:
+            raise Exception('stmt need to be end with semicolon(;)')
+
+        return stmt
+
+    def compound_stmt(self):
+        stmts = CompoundStmtASt()
+
+        token = self.peek()
+        if token is not None and token.tag == RESERVED and \
+                token.val == 'begin':
+            self.consume()
+
+            stmt = self.stmt_list()
+            stmts.add(stmt)
+
+            token = self.peek()
+            if token is not None and token.tag == RESERVED and \
+                    token.val == 'end':
+                self.consume()
+            else:
+                raise Exception('no end found')
+
+        return stmts
+
     def parse(self):
-        return self.expr()
+        return self.compound_stmt()
 
