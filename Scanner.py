@@ -7,14 +7,31 @@ ID = 'ID'
 
 tokens_exprs = [
     (r'[ \n\t]+',               None),
-    (r'\(',                    'RESERVED'),
-    (r'\)',                    'RESERVED'),
-    (r'\+',                    'RESERVED'),
-    (r'-',                     'RESERVED'),
-    (r'\*',                    'RESERVED'),
-    (r'\/',                    'RESERVED'),
-    (r'\d+',                   'INT'),
-    (r'[A-Za-z][A-Za-z0-9_]*', 'ID'),
+    (r'[0-9]+[a-zA-Z_]+',       None),
+    (r'if',                     RESERVED),
+    (r'then',                   RESERVED),
+    (r'else',                   RESERVED),
+    (r'while',                  RESERVED),
+    (r'do',                     RESERVED),
+    (r'and',                    RESERVED),
+    (r'or',                     RESERVED),
+    (r'not',                    RESERVED),
+    (r'\(',                     RESERVED),
+    (r'\)',                     RESERVED),
+    (r'\+',                     RESERVED),
+    (r'-',                      RESERVED),
+    (r'\*',                     RESERVED),
+    (r'\/',                     RESERVED),
+    (r'>=',                     RESERVED),
+    (r'<=',                     RESERVED),
+    (r'==',                     RESERVED),
+    (r'!=',                     RESERVED),
+    (r'>',                      RESERVED),
+    (r'<',                      RESERVED),
+    (r'=',                      RESERVED),
+    (r';',                      RESERVED),
+    (r'\d+',                    INT),
+    (r'[A-Za-z][A-Za-z0-9_]*',  ID),
 ]
 
 
@@ -30,8 +47,11 @@ class Token:
         return self.__dict__ == other.__dict__
 
 
-class Scanner:
+class UnacceptableInput(Exception):
+    pass
 
+
+class Scanner:
     def __init__(self, inputs):
         self.inputs = inputs
         self.tokens = []
@@ -50,6 +70,9 @@ class Scanner:
                         self.tokens.append(Token(val, tag))
                     break
             if not match:
-                raise ValueError('inputs {} is not valid.'.format(self.inputs[self.pos]))
+                raise UnacceptableInput('inputs {} is not valid.'.format(self.inputs[self.pos]))
             else:
                 self.pos = match.end(0)
+
+        if not self.tokens:
+            raise UnacceptableInput(self.inputs)

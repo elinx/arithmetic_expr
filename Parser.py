@@ -5,12 +5,32 @@ from AST import *
 class Parser:
     """Grammar:
 
-    expr ::= term ((PLUS | MINUS) term)*
-    term ::= factor ((MUL | DIV) factor)*
-    factor ::= NUM
-            | PLUS NUM
-            | MINUS NUM
-            | '(' expr ')'
+    expr          ::= term ((PLUS | MINUS) term)*
+
+    term          ::= factor ((MUL | DIV) factor)*
+
+    factor        ::= NUM
+                  |   PLUS NUM
+                  |   MINUS NUM
+                  |   '(' expr ')'
+
+    compound_stmt ::= BEGIN stmt_list END
+
+    stmt_list     ::= stmt
+                  |   stmt SEMICOLON stmt_list
+
+    stmt          ::= compound_stmt
+                  |   if_stmt
+                  |   while_stmt
+                  |   assign_stmt
+                  |   empty
+
+    assign_stmt   ::= ID ASSIGN expr
+
+    if_stmt       ::= IF expr THEN compound_stmt
+                  |   IF expr THEN compound_stmt ELSE compound_stmt
+
+    while_stmt    ::= WHILE expr DO compound_stmt
     """
 
     def __init__(self, tokens):
