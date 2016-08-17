@@ -22,6 +22,9 @@ class ASTDisplayVisitor(ASTVisitor):
     def visitBinaryOPAST(self, node):
         return repr(node)
 
+    def visitUnaryOPAST(self, node):
+        return repr(node.op) + repr(node.value)
+
     def visitIntegerAST(self, node):
         return repr(node)
 
@@ -43,7 +46,13 @@ class ASTEvalVisitor(ASTVisitor):
             '-': left - right,
             '*': left * right,
             '/': left / right
-        }[node.value]
+        }[node.op]
+
+    def visitUnaryOPAST(self, node):
+        return {
+            '+': self.visit(node.value),
+            '-': -self.visit(node.value)
+        }[node.op]
 
     def visitIntegerAST(self, node):
         return node.value

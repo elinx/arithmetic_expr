@@ -36,8 +36,8 @@ class Parser:
         if token.tag == RESERVED:
             if token.val == '+' or token.val == '-':
                 op = self.consume()
-                opd = self.consume()
-                return IntegerAST(int(op.val + opd.val))
+                opd = IntegerAST(int(self.consume().val))
+                return UnaryOPAST(op.val, opd)
             elif token.val == '(':
                 self.consume()
                 expr = self.expr()
