@@ -24,5 +24,28 @@ class StmtTest(unittest.TestCase):
 
         self.assertEqual(ast, expect)
 
+    def test_empty(self):
+        src = '''
+        begin
+        ;
+        end
+        '''
+        self.cmp_ast(src, CompoundStmtASt())
+
     def test_assign(self):
-        self.cmp_ast('begin a = 1; end', CompoundStmtASt(AssignAST('a', IntegerAST(1))))
+        code = '''
+        begin
+            a = 1;
+        end
+        '''
+        self.cmp_ast(code, CompoundStmtASt(AssignAST('a', IntegerAST(1))))
+
+    def test_assign_2(self):
+        code = '''
+        begin
+           a = 1;
+           b = 2;
+        end
+                '''
+        self.cmp_ast(code, CompoundStmtASt(AssignAST('a', IntegerAST(1)),
+                                           AssignAST('b', IntegerAST(2))))

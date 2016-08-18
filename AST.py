@@ -41,9 +41,9 @@ class UnaryOPAST(AST):
 
 
 class CompoundStmtASt(AST):
-    def __init__(self, stmt=None):
+    def __init__(self, *args):
         self.stmts = []
-        if stmt:
+        for stmt in args:
             self.stmts.append(stmt)
 
     def __eq__(self, other):
@@ -54,7 +54,8 @@ class CompoundStmtASt(AST):
         return res
 
     def add(self, stmt):
-        self.stmts.append(stmt)
+        if stmt is not None:
+            self.stmts.append(stmt)
 
 
 class AssignAST(AST):
@@ -67,3 +68,19 @@ class AssignAST(AST):
 
     def __eq__(self, other):
         return self.id == other.id and self.value == self.value
+
+
+class IfAST(AST):
+    def __init__(self, expr, stmts):
+        self.expr = expr
+        self.stmts = stmts
+
+
+class WhileAST(AST):
+    def __init__(self, expr, stmts):
+        self.expr = expr
+        self.stmts = stmts
+
+
+class ForAST(AST):
+    pass

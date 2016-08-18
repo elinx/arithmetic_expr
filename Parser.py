@@ -14,16 +14,12 @@ class Parser:
                   |   MINUS NUM
                   |   '(' expr ')'
 
-    compound_stmt ::= BEGIN stmt_list END
-
-    stmt_list     ::= stmt SEMICOLON
-                  |   stmt SEMICOLON stmt_list
+    compound_stmt ::= BEGIN (stmt SEMICOLON)* END
 
     stmt          ::= compound_stmt
                   |   if_stmt
                   |   while_stmt
                   |   assign_stmt
-                  |   empty
 
     assign_stmt   ::= ID ASSIGN expr
 
@@ -112,23 +108,26 @@ class Parser:
 
         return stmt
 
-    def stmt_list(self):
+    def stmt(self):
         stmt = None
         token = self.peek()
 
         if token is not None and token.tag == ID:
             stmt = self.assign_stmt()
 
-        semi_token = self.peek()
-        if semi_token is not None and semi_token.tag == RESERVED and \
-                semi_token.val == ';':
-            self.consume()
-        else:
-            raise Exception('stmt need to be end with semicolon(;)')
-
         return stmt
 
+        # semi_token = self.peek()
+        # if semi_token is not None and semi_token.tag == RESERVED and \
+        #         semi_token.val == ';':
+        #     self.consume()
+        # else:
+        #     raise Exception('stmt need to be end with semicolon(;)')
+        #
+        # return stmt
+
     def compound_stmt(self):
+        """    compound_stmt ::= BEGIN (stmt SEMICOLON)* END   """
         stmts = CompoundStmtASt()
 
         token = self.peek()
@@ -136,8 +135,18 @@ class Parser:
                 token.val == 'begin':
             self.consume()
 
-            stmt = self.stmt_list()
-            stmts.add(stmt)
+            while True:
+                stmt = self.stmt()
+                if stmt == None:
+                    break
+                stmts.add(stmt)
+
+                token = self.peek()
+                if token is not None and token.tag == RESERVED and \
+                        token.val == ';':
+                    self.consume()
+                else:
+                    raise Exception('a semicolon is need')
 
             token = self.peek()
             if token is not None and token.tag == RESERVED and \
