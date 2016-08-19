@@ -49,7 +49,9 @@ class Parser:
         token = self.peek()
         if token.tag == INT:
             return IntegerAST(int(self.consume().val))
-        if token.tag == RESERVED:
+        elif token.tag == ID:
+            return IdAST(self.consume().val)
+        elif token.tag == RESERVED:
             if token.val == '+' or token.val == '-':
                 op = self.consume()
                 opd = IntegerAST(int(self.consume().val))
@@ -81,12 +83,15 @@ class Parser:
         return term_ast
 
     def expr(self):
-        """expr ::= term ((PLUS | MINUS) term)*"""
+        """expr ::= term ((PLUS | MINUS | ...) term)*"""
         expr_ast = self.term()
 
         token = self.peek()
         while token is not None and token.tag == RESERVED and \
-                (token.val == '+' or token.val == '-'):
+                (token.val == '+' or token.val == '-' or
+                 token.val == '>' or token.val == '<' or
+                 token.val == '>=' or token.val == '<=' or
+                 token.val == 'and' or token.val == 'or'):
             op = self.consume()
             right = self.term()
             new_ast = BinaryOPAST(op.val, expr_ast, right)
@@ -106,25 +111,62 @@ class Parser:
             val_ast = self.expr()
             stmt = AssignAST(id_token.val, val_ast)
 
+        token = self.peek()
+        if token is not None and token.tag == RESERVED and \
+                token.val == ';':
+            self.consume()
+        else:
+            raise Exception('a semicolon is need')
+
         return stmt
 
+    def if_stmt(self):
+        """if_stmt       ::= IF expr THEN compound_stmt
+                     |   IF expr THEN compound_stmt ELSE compound_stmt
+        """
+        if_stmt = None
+        token = self.peek()
+        if token.tag == RESERVED and token.val == 'if':
+            self.consume()
+            expr = self.expr()
+            token = self.peek()
+            if token.tag == RESERVED and token.val == 'then':
+                self.consume()
+                then = self.compound_stmt()
+                token = self.peek()
+                if token.tag == RESERVED and token.val == 'else':
+                    self.consume()
+                    els = self.compound_stmt()
+                    if_stmt = IfAST(expr, then, els)
+                else:
+                    if_stmt = IfAST(expr, then, None)
+            else:
+                raise Exception('if need a then')
+
+        return if_stmt
+
+    def while_stmt(self):
+        return None
+
     def stmt(self):
+        """stmt   ::= compound_stmt
+                  |   if_stmt
+                  |   while_stmt
+                  |   assign_stmt
+                  |   empty
+        """
         stmt = None
         token = self.peek()
 
-        if token is not None and token.tag == ID:
-            stmt = self.assign_stmt()
+        if token is not None:
+            if token.tag == ID:
+                stmt = self.assign_stmt()
+            elif token.val == 'if':
+                stmt = self.if_stmt()
+            elif token.val == 'while':
+                stmt = self.while_stmt()
 
         return stmt
-
-        # semi_token = self.peek()
-        # if semi_token is not None and semi_token.tag == RESERVED and \
-        #         semi_token.val == ';':
-        #     self.consume()
-        # else:
-        #     raise Exception('stmt need to be end with semicolon(;)')
-        #
-        # return stmt
 
     def compound_stmt(self):
         """    compound_stmt ::= BEGIN (stmt SEMICOLON)* END   """
@@ -137,16 +179,9 @@ class Parser:
 
             while True:
                 stmt = self.stmt()
-                if stmt == None:
+                if stmt is None:
                     break
                 stmts.add(stmt)
-
-                token = self.peek()
-                if token is not None and token.tag == RESERVED and \
-                        token.val == ';':
-                    self.consume()
-                else:
-                    raise Exception('a semicolon is need')
 
             token = self.peek()
             if token is not None and token.tag == RESERVED and \

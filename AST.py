@@ -18,6 +18,11 @@ class BinaryOPAST(AST):
             ret += self.right.__repr__(level + 1)
         return ret
 
+    def __eq__(self, other):
+        return self.op == other.op and  \
+               self.left == other.left and  \
+               self.right == other.right
+
 
 class IntegerAST(AST):
     def __init__(self, value):
@@ -30,6 +35,16 @@ class IntegerAST(AST):
     def __eq__(self, other):
         return self.value == other.value
 
+
+class IdAST(AST):
+    def __init__(self, name):
+        self.name = name
+
+    def __repr__(self, levle = 0):
+        return '\t' * level + repr(self.name) + '\n'
+
+    def __eq__(self, other):
+        return self.name == other.name
 
 class UnaryOPAST(AST):
     def __init__(self, op, value):
@@ -47,11 +62,12 @@ class CompoundStmtASt(AST):
             self.stmts.append(stmt)
 
     def __eq__(self, other):
-        res = True
-        for stmt in self.stmts:
-            if stmt not in other.stmts:
-                res = False
-        return res
+        return self.stmts == other.stmts
+        # res = True
+        # for stmt in self.stmts:
+        #     if stmt not in other.stmts:
+        #         res = False
+        # return res
 
     def add(self, stmt):
         if stmt is not None:
@@ -71,9 +87,15 @@ class AssignAST(AST):
 
 
 class IfAST(AST):
-    def __init__(self, expr, stmts):
-        self.expr = expr
-        self.stmts = stmts
+    def __init__(self, cond, then, els=None):
+        self.cond = cond
+        self.then = then
+        self.els = els
+
+    def __eq__(self, other):
+        return self.cond == other.cond and \
+               self.then == other.then and \
+               self.els  == other.els
 
 
 class WhileAST(AST):
