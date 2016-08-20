@@ -126,7 +126,7 @@ class Parser:
         return stmt
 
     def if_stmt(self):
-        """if_stmt       ::= IF expr THEN compound_stmt
+        """if_stmt   ::= IF expr THEN compound_stmt
                      |   IF expr THEN compound_stmt ELSE compound_stmt
         """
         if_stmt = None
