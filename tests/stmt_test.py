@@ -103,3 +103,44 @@ class StmtTest(unittest.TestCase):
                 )
             )
         ))
+
+    def test_while_stmt_1(self):
+        code = '''
+        begin
+            while a > b do
+            begin
+                a = 1;
+                b = 1;
+            end
+        end
+        '''
+        self.cmp_ast(code, CompoundStmtASt(
+            WhileAST(
+                test_asts['a > b'],
+                CompoundStmtASt(
+                    test_asts['a = 1;'],
+                    test_asts['b = 1;']
+                )
+            )
+        ))
+
+    def test_for_stmt_1(self):
+        code = '''
+        begin
+            for a in as do
+            begin
+                a = 1;
+                b = 1;
+            end
+        end
+        '''
+        self.cmp_ast(code, CompoundStmtASt(
+            ForAST(
+                IdAST('a'),
+                IdAST('as'),
+                CompoundStmtASt(
+                    test_asts['a = 1;'],
+                    test_asts['b = 1;']
+                )
+            )
+        ))

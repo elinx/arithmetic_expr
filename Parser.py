@@ -12,6 +12,7 @@ class Parser:
     factor        ::= NUM
                   |   PLUS NUM
                   |   MINUS NUM
+                  |   variable
                   |   '(' expr ')'
 
     compound_stmt ::= BEGIN (stmt SEMICOLON)* END
@@ -21,12 +22,16 @@ class Parser:
                   |   while_stmt
                   |   assign_stmt
 
-    assign_stmt   ::= ID ASSIGN expr
+    assign_stmt   ::= variable ASSIGN expr
 
     if_stmt       ::= IF expr THEN compound_stmt
                   |   IF expr THEN compound_stmt ELSE compound_stmt
 
     while_stmt    ::= WHILE expr DO compound_stmt
+
+    for_stmt      ::= FOR variable IN variable DO compound_stmt
+
+    variable      ::= ID
     """
 
     def __init__(self, tokens):
@@ -128,7 +133,7 @@ class Parser:
         token = self.peek()
         if token.tag == RESERVED and token.val == 'if':
             self.consume()
-            expr = self.expr()
+            cond = self.expr()
             token = self.peek()
             if token.tag == RESERVED and token.val == 'then':
                 self.consume()
@@ -137,22 +142,62 @@ class Parser:
                 if token.tag == RESERVED and token.val == 'else':
                     self.consume()
                     els = self.compound_stmt()
-                    if_stmt = IfAST(expr, then, els)
+                    if_stmt = IfAST(cond, then, els)
                 else:
-                    if_stmt = IfAST(expr, then, None)
+                    if_stmt = IfAST(cond, then, None)
             else:
                 raise Exception('if need a then')
 
         return if_stmt
 
     def while_stmt(self):
-        return None
+        """while_stmt    ::= WHILE expr DO compound_stmt"""
+        while_stmt = None
+        token = self.peek()
+        if token.tag == RESERVED and token.val == 'while':
+            self.consume()
+            cond = self.expr()
+            token = self.peek()
+            if token.tag == RESERVED and token.val == 'do':
+                self.consume()
+                then = self.compound_stmt()
+                while_stmt = WhileAST(cond, then)
+            else:
+                raise Exception('broken while statement, need a `do`')
+
+        return while_stmt
+
+    def for_stmt(self):
+        """for_stmt      ::= FOR variable IN expr DO compound_stmt"""
+        for_stmt = None
+        token = self.peek()
+        if token.tag == RESERVED and token.val == 'for':
+            self.consume()
+            token = self.peek()
+            if token.tag == ID:
+                item = IdAST(self.consume().val)
+                token = self.peek()
+                if token.tag == RESERVED and token.val == 'in':
+                    self.consume()
+                    items = self.expr()
+                    token = self.peek()
+                    if token.tag == RESERVED and token.val == 'do':
+                        self.consume()
+                        then = self.compound_stmt()
+                        for_stmt = ForAST(item, items, then)
+                else:
+                    raise Exception('broken for statement, need a items variable')
+            else:
+                raise Exception('bad for statements: need a item variable')
+
+        return for_stmt
 
     def stmt(self):
         """stmt   ::= compound_stmt
                   |   if_stmt
                   |   while_stmt
                   |   assign_stmt
+                  |   for_stmt
                   |   empty
         """
         stmt = None
@@ -165,6 +210,8 @@ class Parser:
                 stmt = self.if_stmt()
             elif token.val == 'while':
                 stmt = self.while_stmt()
+            elif token.val == 'for':
+                stmt = self.for_stmt()
 
         return stmt
 
@@ -194,4 +241,3 @@ class Parser:
 
     def parse(self):
         return self.compound_stmt()
-

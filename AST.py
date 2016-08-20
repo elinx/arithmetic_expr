@@ -40,11 +40,12 @@ class IdAST(AST):
     def __init__(self, name):
         self.name = name
 
-    def __repr__(self, levle = 0):
+    def __repr__(self, level=0):
         return '\t' * level + repr(self.name) + '\n'
 
     def __eq__(self, other):
         return self.name == other.name
+
 
 class UnaryOPAST(AST):
     def __init__(self, op, value):
@@ -63,11 +64,6 @@ class CompoundStmtASt(AST):
 
     def __eq__(self, other):
         return self.stmts == other.stmts
-        # res = True
-        # for stmt in self.stmts:
-        #     if stmt not in other.stmts:
-        #         res = False
-        # return res
 
     def add(self, stmt):
         if stmt is not None:
@@ -75,15 +71,15 @@ class CompoundStmtASt(AST):
 
 
 class AssignAST(AST):
-    def __init__(self, id, value):
-        self.id = id
+    def __init__(self, name, value):
+        self.name = name
         self.value = value
 
     def __repr__(self, level=0):
-        return '\t' * level + repr(self.id) + self.value.__repr__(level) + '\n'
+        return '\t' * level + repr(self.name) + self.value.__repr__(level) + '\n'
 
     def __eq__(self, other):
-        return self.id == other.id and self.value == self.value
+        return self.name == other.name and self.value == self.value
 
 
 class IfAST(AST):
@@ -95,14 +91,26 @@ class IfAST(AST):
     def __eq__(self, other):
         return self.cond == other.cond and \
                self.then == other.then and \
-               self.els  == other.els
+               self.els == other.els
 
 
 class WhileAST(AST):
-    def __init__(self, expr, stmts):
-        self.expr = expr
-        self.stmts = stmts
+    def __init__(self, cond, then):
+        self.cond = cond
+        self.then = then
+
+    def __eq__(self, other):
+        return self.cond == other.cond and \
+               self.then == other.then
 
 
 class ForAST(AST):
-    pass
+    def __init__(self, item, items, do):
+        self.item = item
+        self.items = items
+        self.do = do
+
+    def __eq__(self, other):
+        return self.item == other.item and \
+               self.items == other.items and \
+               self.do == other.do
