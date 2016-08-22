@@ -21,8 +21,9 @@ class Parser:
                   |   if_stmt
                   |   while_stmt
                   |   assign_stmt
+                  |   return_stmt
 
-    assign_stmt   ::= variable ASSIGN expr
+    assign_stmt   ::= variable ASSIGN expr SEMICOLON
 
     if_stmt       ::= IF expr THEN compound_stmt
                   |   IF expr THEN compound_stmt ELSE compound_stmt
@@ -30,6 +31,8 @@ class Parser:
     while_stmt    ::= WHILE expr DO compound_stmt
 
     for_stmt      ::= FOR variable IN variable DO compound_stmt
+
+    return_stmt   ::= RETURN expr
 
     variable      ::= ID
     """
@@ -216,7 +219,7 @@ class Parser:
         return stmt
 
     def compound_stmt(self):
-        """    compound_stmt ::= BEGIN (stmt SEMICOLON)* END   """
+        """compound_stmt ::= BEGIN (stmt SEMICOLON)* END"""
         stmts = CompoundStmtASt()
 
         token = self.peek()

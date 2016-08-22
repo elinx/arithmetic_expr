@@ -15,6 +15,7 @@ tokens_exprs = [
     (r'else',                   RESERVED),
     (r'while',                  RESERVED),
     (r'for',                    RESERVED),
+    (r'return',                 RESERVED),
     (r'in',                     RESERVED),
     (r'do',                     RESERVED),
     (r'and',                    RESERVED),
