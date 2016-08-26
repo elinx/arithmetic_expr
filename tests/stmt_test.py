@@ -4,8 +4,8 @@ from Scanner import *
 from ASTVisitor import *
 
 test_asts = {
-    'a = 1;': AssignAST('a', IntegerAST(1)),
-    'b = 1;': AssignAST('b', IntegerAST(1)),
+    'a = 1;': AssignAST(IdAST('a'), IntegerAST(1)),
+    'b = 1;': AssignAST(IdAST('b'), IntegerAST(1)),
     'a > b': BinaryOPAST('>', IdAST('a'), IdAST('b')),
     'begin end': CompoundStmtASt(),
 }
@@ -48,7 +48,7 @@ class StmtTest(unittest.TestCase):
             a = 1;
         end
         '''
-        self.cmp_ast(code, CompoundStmtASt(AssignAST('a', IntegerAST(1))))
+        self.cmp_ast(code, CompoundStmtASt(AssignAST(IdAST('a'), IntegerAST(1))))
 
     def test_assign_2(self):
         code = '''
@@ -57,8 +57,8 @@ class StmtTest(unittest.TestCase):
            b = 2;
         end
                 '''
-        self.cmp_ast(code, CompoundStmtASt(AssignAST('a', IntegerAST(1)),
-                                           AssignAST('b', IntegerAST(2))))
+        self.cmp_ast(code, CompoundStmtASt(AssignAST(IdAST('a'), IntegerAST(1)),
+                                           AssignAST(IdAST('b'), IntegerAST(2))))
 
     def test_if_stmt_1(self):
         code = '''
@@ -144,3 +144,31 @@ class StmtTest(unittest.TestCase):
                 )
             )
         ))
+
+    def test_if_eval_1(self):
+        """
+        a = 3;
+        b = 4;
+        if (a > b) then
+            a = 1;
+        else
+            b =1;
+        :return:
+        """
+        if_stmt = CompoundStmtASt(
+            AssignAST(IdAST('a'), IntegerAST(3)),
+            AssignAST(IdAST('b'), IntegerAST(4)),
+            IfAST(
+                test_asts['a > b'],
+                CompoundStmtASt(
+                    test_asts['a = 1;']
+                ),
+                CompoundStmtASt(
+                    test_asts['b = 1;']
+                )
+            )
+        )
+
+        eval_visitor = ASTEvalVisitor()
+        res = eval_visitor.eval(if_stmt)
+        print(res)

@@ -117,7 +117,7 @@ class Parser:
                 eq_token.val == '=':
             self.consume()
             val_ast = self.expr()
-            stmt = AssignAST(id_token.val, val_ast)
+            stmt = AssignAST(IdAST(id_token.val), val_ast)
 
         token = self.peek()
         if token is not None and token.tag == RESERVED and \

@@ -35,6 +35,21 @@ class IntegerAST(AST):
     def __eq__(self, other):
         return self.value == other.value
 
+    def __add__(self, other):
+        return self.value + other.value
+
+    def __sub__(self, other):
+        return self.value - other.value
+
+    def __mul__(self, other):
+        return self.value * other.value
+
+    def __truediv__(self, other):
+        return self.value / other.value
+
+    def __gt__(self, other):
+        return self.value > other.value
+
 
 class IdAST(AST):
     def __init__(self, name):
@@ -71,15 +86,15 @@ class CompoundStmtASt(AST):
 
 
 class AssignAST(AST):
-    def __init__(self, name, value):
-        self.name = name
-        self.value = value
+    def __init__(self, id, val):
+        self.id = id
+        self.val = val
 
     def __repr__(self, level=0):
-        return '\t' * level + repr(self.name) + self.value.__repr__(level) + '\n'
+        return '\t' * level + repr(self.id) + self.val.__repr__(level) + '\n'
 
     def __eq__(self, other):
-        return self.name == other.name and self.value == self.value
+        return self.id == other.id and self.val == self.val
 
 
 class IfAST(AST):
