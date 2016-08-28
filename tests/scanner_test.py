@@ -114,3 +114,18 @@ class ScannerTest(unittest.TestCase):
             Token('=', RESERVED), Token('1', INT),
             Token(';', RESERVED), Token('end', RESERVED)
         ])
+
+    def test_func_declare_1(self):
+        self.common('def func() begin end', [
+            Token('def', RESERVED), Token('func', ID),
+            Token('(', RESERVED), Token(')', RESERVED),
+            Token('begin', RESERVED), Token('end', RESERVED)
+        ])
+
+    def test_func_declare_1(self):
+        self.common('def func(p1, p2) begin end', [
+            Token('def', RESERVED), Token('func', ID),
+            Token('(', RESERVED), Token('p1', ID),
+            Token(',', RESERVED), Token('p2', ID), Token(')', RESERVED),
+            Token('begin', RESERVED), Token('end', RESERVED)
+        ])

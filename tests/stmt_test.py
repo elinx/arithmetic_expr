@@ -172,3 +172,40 @@ class StmtTest(unittest.TestCase):
         eval_visitor = ASTEvalVisitor()
         res = eval_visitor.eval(if_stmt)
         print(res)
+
+    def x_test_func_decl_1(self):
+        code = """
+        def cmp(a, b) begin
+            a = 3;
+            b = 4;
+            if (a > b) then
+                a = 1;
+            else
+                b =1;
+        end
+        """
+        self.cmp_ast(code, FunctionAST(
+            IdAST('cmp'),
+            [IdAST('a'), IdAST('b')],
+            CompoundStmtASt(
+                AssignAST(IdAST('a'), IntegerAST(3)),
+                AssignAST(IdAST('b'), IntegerAST(4)),
+                IfAST(
+                    test_asts['a > b'],
+                    CompoundStmtASt(
+                        test_asts['a = 1;']
+                    ),
+                    CompoundStmtASt(
+                        test_asts['b = 1;']
+                    )
+                )
+            )
+        ))
+
+    def test_func_decl_2(self):
+        code = """
+            def empty() begin end
+        """
+        self.cmp_ast(code, FunctionAST(
+            IdAST('empty'), [], CompoundStmtASt(), None
+        ))

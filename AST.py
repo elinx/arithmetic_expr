@@ -129,3 +129,17 @@ class ForAST(AST):
         return self.item == other.item and \
                self.items == other.items and \
                self.do == other.do
+
+
+class FunctionAST(AST):
+    def __init__(self, name, args, body, ret):
+        self.name = name
+        self.args = args
+        self.body = body
+        self.ret = ret
+
+    def __eq__(self, other):
+        return self.name == other.name and \
+               self.args == other.args and \
+               self.body == other.body and \
+               self.ret == other.ret

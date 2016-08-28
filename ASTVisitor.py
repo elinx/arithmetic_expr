@@ -81,5 +81,8 @@ class ASTEvalVisitor(ASTVisitor):
             self.visit(node.els, env)
             print(env)
 
+    def visitFunctionAst(self, node, env):
+        pass
+
     def eval(self, ast):
         return self.visit(ast, Env())

@@ -12,7 +12,7 @@ class Parser:
     factor        ::= NUM
                   |   PLUS NUM
                   |   MINUS NUM
-                  |   variable
+                  |   ID
                   |   '(' expr ')'
 
     compound_stmt ::= BEGIN (stmt SEMICOLON)* END
@@ -23,7 +23,7 @@ class Parser:
                   |   assign_stmt
                   |   return_stmt
 
-    assign_stmt   ::= variable ASSIGN expr SEMICOLON
+    assign_stmt   ::= ID ASSIGN expr SEMICOLON
 
     if_stmt       ::= IF expr THEN compound_stmt
                   |   IF expr THEN compound_stmt ELSE compound_stmt
@@ -34,7 +34,12 @@ class Parser:
 
     return_stmt   ::= RETURN expr
 
-    variable      ::= ID
+    function      ::= DEF function_name '(' arg_list ')' compound_stmt
+
+    params        ::= param_list*
+
+    param_list    ::= ID (',' ID)*
+
     """
 
     def __init__(self, tokens):
@@ -242,5 +247,63 @@ class Parser:
 
         return stmts
 
+    def identifier(self):
+        token = self.peek()
+        if token.tag == ID:
+            token = self.consume()
+            return IdAST(token.val)
+        else:
+            raise Exception('not an identifier')
+
+    def match(self, val):
+        """ if the next token is identical to val, then consume the token,
+        raise a Exception otherwise
+        """
+        token = self.peek()
+        if token.tag == RESERVED and token.val == val:
+            self.consume()
+        else:
+            raise Exception('match failed: {}'.format(val))
+
+    def params(self):
+        """ params        ::= param_list? """
+        args = []
+        token = self.peek()
+
+        if token.tag == ID:
+            args = self.param_list()
+
+        return args
+
+    def param_list(self):
+        """ param_list    ::= ID (',' ID)* """
+        args = []
+        arg = self.identifier()
+        args.append(arg)
+        token = self.peek()
+        while token.tag == RESERVED and token.val == ',':
+            self.consume()
+            arg = self.identifier()
+            args.append(arg)
+            token = self.peek()
+
+        return args
+
+    def function_stmt(self):
+        """
+        function      ::= DEF function_name '(' arg_list ')' compound_stmt
+        """
+        self.match('def')
+        func_name = self.identifier()
+        self.match('(')
+        func_args = self.params()
+        self.match(')')
+        func_body = self.compound_stmt()
+        return FunctionAST(func_name, func_args, func_body, None)
+
     def parse(self):
-        return self.compound_stmt()
+        token = self.peek()
+        if token.val == 'def':
+            return self.function_stmt()
+        else:
+            return self.compound_stmt()
