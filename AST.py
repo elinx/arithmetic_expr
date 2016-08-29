@@ -70,6 +70,10 @@ class UnaryOPAST(AST):
     def __repr__(self, level=0):
         return '\t' * level + repr(self.op) + self.value.__repr__(level) + '\n'
 
+    def __eq__(self, other):
+        return self.op == other.op and \
+               self.val == other.op
+
 
 class CompoundStmtASt(AST):
     def __init__(self, *args):

@@ -57,6 +57,16 @@ class Parser:
     def peek(self):
         return self.tokens[self.pos] if self.pos < len(self.tokens) else None
 
+    def match(self, val):
+        """ if the next token is identical to val, then consume the token,
+        raise a Exception otherwise
+        """
+        token = self.peek()
+        if token.tag == RESERVED and token.val == val:
+            self.consume()
+        else:
+            raise Exception('match failed: {}'.format(val))
+
     def factor(self):
         """factor ::= [0-9]*"""
         token = self.peek()
@@ -138,23 +148,16 @@ class Parser:
                      |   IF expr THEN compound_stmt ELSE compound_stmt
         """
         if_stmt = None
-        token = self.peek()
-        if token.tag == RESERVED and token.val == 'if':
-            self.consume()
-            cond = self.expr()
-            token = self.peek()
-            if token.tag == RESERVED and token.val == 'then':
-                self.consume()
-                then = self.compound_stmt()
-                token = self.peek()
-                if token.tag == RESERVED and token.val == 'else':
-                    self.consume()
-                    els = self.compound_stmt()
-                    if_stmt = IfAST(cond, then, els)
-                else:
-                    if_stmt = IfAST(cond, then, None)
-            else:
-                raise Exception('if need a then')
+        self.match('if')
+        cond = self.expr()
+        self.match('then')
+        then = self.compound_stmt()
+        try:
+            self.match('else')
+            els = self.compound_stmt()
+            if_stmt = IfAST(cond, then, els)
+        except(Exception):
+            if_stmt = IfAST(cond, then, None)
 
         return if_stmt
 
@@ -178,25 +181,18 @@ class Parser:
     def for_stmt(self):
         """for_stmt      ::= FOR variable IN expr DO compound_stmt"""
         for_stmt = None
+        self.match('for')
+
         token = self.peek()
-        if token.tag == RESERVED and token.val == 'for':
-            self.consume()
-            token = self.peek()
-            if token.tag == ID:
-                item = IdAST(self.consume().val)
-                token = self.peek()
-                if token.tag == RESERVED and token.val == 'in':
-                    self.consume()
-                    items = self.expr()
-                    token = self.peek()
-                    if token.tag == RESERVED and token.val == 'do':
-                        self.consume()
-                        then = self.compound_stmt()
-                        for_stmt = ForAST(item, items, then)
-                else:
-                    raise Exception('broken for statement, need a items variable')
-            else:
-                raise Exception('bad for statements: need a item variable')
+        if token.tag == ID:
+            item = IdAST(self.consume().val)
+            self.match('in')
+            items = self.expr()
+            self.match('do')
+            then = self.compound_stmt()
+            for_stmt = ForAST(item, items, then)
+        else:
+            raise Exception('broken for statement, need a items variable')
 
         return for_stmt
 
@@ -226,24 +222,13 @@ class Parser:
     def compound_stmt(self):
         """compound_stmt ::= BEGIN (stmt SEMICOLON)* END"""
         stmts = CompoundStmtASt()
-
-        token = self.peek()
-        if token is not None and token.tag == RESERVED and \
-                token.val == 'begin':
-            self.consume()
-
-            while True:
-                stmt = self.stmt()
-                if stmt is None:
-                    break
-                stmts.add(stmt)
-
-            token = self.peek()
-            if token is not None and token.tag == RESERVED and \
-                    token.val == 'end':
-                self.consume()
-            else:
-                raise Exception('no end found')
+        self.match('begin')
+        while True:
+            stmt = self.stmt()
+            if stmt is None:
+                break
+            stmts.add(stmt)
+        self.match('end')
 
         return stmts
 
@@ -254,16 +239,6 @@ class Parser:
             return IdAST(token.val)
         else:
             raise Exception('not an identifier')
-
-    def match(self, val):
-        """ if the next token is identical to val, then consume the token,
-        raise a Exception otherwise
-        """
-        token = self.peek()
-        if token.tag == RESERVED and token.val == val:
-            self.consume()
-        else:
-            raise Exception('match failed: {}'.format(val))
 
     def params(self):
         """ params        ::= param_list? """

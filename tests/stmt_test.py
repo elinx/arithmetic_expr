@@ -173,7 +173,7 @@ class StmtTest(unittest.TestCase):
         res = eval_visitor.eval(if_stmt)
         print(res)
 
-    def x_test_func_decl_1(self):
+    def test_func_decl_1(self):
         code = """
         def cmp(a, b) begin
             a = 3;
